@@ -1,0 +1,14 @@
+{
+  "name": "saleslda",
+  "version": "1.0.0",
+  "description": "Sistema de Gestão SalesLda",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx serve .",
+    "build": "echo 'No build step needed'"
+  },
+  "dependencies": {
+    "firebase": "^10.8.0",
+    "serve": "^14.2.0"
+  }
+}
