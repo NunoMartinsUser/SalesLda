@@ -1,15 +1,13 @@
 import { db, auth } from "./firebase-config.js";
-import { doc, setDoc, getDoc, updateDoc, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-import { signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { doc, setDoc, getDoc, updateDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-// Referências da UI
 const nifInput = document.getElementById("vendedorNif");
 const nomeInput = document.getElementById("vendedorNome");
 const emailInput = document.getElementById("vendedorEmail");
 const btnSalvar = document.getElementById("btnSalvar");
 const tabelaCorpo = document.getElementById("tabelaCorpo");
 
-// --- 1. CRIAR OU ATUALIZAR VENDEDOR ---
+// SALVAR OU ATUALIZAR
 async function salvarVendedor() {
     const nif = nifInput.value.trim();
     const nome = nomeInput.value.trim();
@@ -17,10 +15,10 @@ async function salvarVendedor() {
 
     if (!nif || !nome) return alert("NIF e Nome são obrigatórios!");
 
+    // doc(db, "coleção", "ID_DOCUMENTO") -> O ID será o NIF
     const docRef = doc(db, "vendedores", nif);
     
     try {
-        // setDoc com merge: true permite atualizar campos sem apagar o resto
         await setDoc(docRef, {
             nome: nome,
             email: email,
@@ -28,71 +26,45 @@ async function salvarVendedor() {
             ultimaAtualizacao: new Date()
         }, { merge: true });
 
-        alert("Dados guardados com sucesso!");
+        alert("Vendedor guardado!");
+        nifInput.value = ""; nomeInput.value = ""; emailInput.value = "";
         nifInput.disabled = false;
-        limparCampos();
         carregarVendedores();
-    } catch (error) {
-        alert("Erro ao salvar: " + error.message);
-    }
+    } catch (e) { alert("Erro: " + e.message); }
 }
 
-// --- 2. LISTAR VENDEDORES NA TABELA ---
+// LISTAR NA TABELA
 async function carregarVendedores() {
     tabelaCorpo.innerHTML = "";
-    const querySnapshot = await getDocs(collection(db, "vendedores"));
-    
-    querySnapshot.forEach((vendedor) => {
-        const data = vendedor.data();
-        const nif = vendedor.id;
-        
+    const snap = await getDocs(collection(db, "vendedores"));
+    snap.forEach(v => {
+        const d = v.data();
         const tr = document.createElement("tr");
         tr.innerHTML = `
-            <td>${nif}</td>
-            <td>${data.nome}</td>
-            <td><span class="status-${data.status}">${data.status}</span></td>
+            <td>${v.id}</td>
+            <td>${d.nome}</td>
+            <td>${d.status}</td>
             <td>
-                <button onclick="editarVendedor('${nif}')">Editar</button>
-                <button onclick="alterarStatus('${nif}', '${data.status}')">
-                    ${data.status === 'ativo' ? 'Desativar' : 'Ativar'}
-                </button>
-            </td>
-        `;
+                <button onclick="prepararEdicao('${v.id}', '${d.nome}', '${d.email}')">Editar</button>
+                <button onclick="mudarStatus('${v.id}', '${d.status}')">Alternar Estado</button>
+            </td>`;
         tabelaCorpo.appendChild(tr);
     });
 }
 
-// --- 3. EDITAR (CARREGAR NO FORMULÁRIO) ---
-window.editarVendedor = async (nif) => {
-    const docRef = doc(db, "vendedores", nif);
-    const docSnap = await getDoc(docRef);
-
-    if (docSnap.exists()) {
-        const data = docSnap.data();
-        nifInput.value = nif;
-        nifInput.disabled = true; // Não permite alterar o NIF (chave única)
-        nomeInput.value = data.nome;
-        emailInput.value = data.email;
-    }
+// Funções globais para os botões da tabela
+window.prepararEdicao = (nif, nome, email) => {
+    nifInput.value = nif;
+    nifInput.disabled = true; // Chave não se altera
+    nomeInput.value = nome;
+    emailInput.value = email;
 };
 
-// --- 4. DESATIVAR / ATIVAR ---
-window.alterarStatus = async (nif, statusAtual) => {
-    const novoStatus = statusAtual === "ativo" ? "inativo" : "ativo";
-    const docRef = doc(db, "vendedores", nif);
-    
-    await updateDoc(docRef, { status: novoStatus });
+window.mudarStatus = async (nif, status) => {
+    const novo = status === "ativo" ? "inativo" : "ativo";
+    await updateDoc(doc(db, "vendedores", nif), { status: novo });
     carregarVendedores();
 };
 
-function limparCampos() {
-    nifInput.value = "";
-    nifInput.disabled = false;
-    nomeInput.value = "";
-    emailInput.value = "";
-}
-
-// Event Listeners
 btnSalvar.addEventListener("click", salvarVendedor);
 window.onload = carregarVendedores;
-window.logout = () => signOut(auth).then(() => window.location.href = "index.html");

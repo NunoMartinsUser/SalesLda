@@ -1,50 +1,25 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SalesLda - Administração</title>
+    <title>SalesLda - Admin</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <nav>
-        <span>Painel Admin - SalesLda</span>
-        <button onclick="logout()">Sair</button>
-    </nav>
-
-    <div class="container">
-        <h2>Gestão de Vendedores</h2>
-        
-        <div class="card">
-            <h3>Ficha do Vendedor</h3>
-            <input type="text" id="vendedorNif" placeholder="NIF (ID Único)">
-            <input type="text" id="vendedorNome" placeholder="Nome Completo">
-            <input type="email" id="vendedorEmail" placeholder="E-mail">
-            <div class="actions">
-                <button id="btnSalvar" class="btn-primary">Salvar / Criar</button>
-                <button id="btnLimpar" class="btn-secondary">Limpar Formuário</button>
-            </div>
-        </div>
-
-        <div class="card search-section">
-            <input type="text" id="inputPesquisa" placeholder="Pesquisar por NIF ou Nome...">
-            <button id="btnPesquisar">Pesquisar</button>
-        </div>
-
-        <table>
-            <thead>
-                <tr>
-                    <th>NIF</th>
-                    <th>Nome</th>
-                    <th>Estado</th>
-                    <th>Ações</th>
-                </tr>
-            </thead>
-            <tbody id="tabelaCorpo">
-                </tbody>
-        </table>
+    <h2>Gestão de Vendedores</h2>
+    <div class="card">
+        <input type="text" id="vendedorNif" placeholder="NIF (Chave Única)">
+        <input type="text" id="vendedorNome" placeholder="Nome">
+        <input type="email" id="vendedorEmail" placeholder="Email">
+        <button id="btnSalvar">Salvar Vendedor</button>
     </div>
 
+    <table border="1" style="width:100%; margin-top:20px;">
+        <thead>
+            <tr><th>NIF</th><th>Nome</th><th>Estado</th><th>Ações</th></tr>
+        </thead>
+        <tbody id="tabelaCorpo"></tbody>
+    </table>
     <script type="module" src="admin.js"></script>
 </body>
 </html>
