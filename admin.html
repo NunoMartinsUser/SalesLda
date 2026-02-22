@@ -8,17 +8,23 @@
 <body>
     <div class="container">
         <h1>Painel Administrativo</h1>
-        <p>Bem-vindo ao controlo da SalesLda.</p>
-
+        
         <div class="card">
-            <h3>Criar / Editar Vendedor</h3>
+            <h3>Gestão de Vendedores</h3>
             <input type="text" id="vendedorNif" placeholder="NIF (ID Único)">
             <input type="text" id="vendedorNome" placeholder="Nome Completo">
             <input type="email" id="vendedorEmail" placeholder="Email do Vendedor">
             <button id="btnSalvar" class="btn-primary">Salvar Vendedor</button>
+            <button id="btnLimpar" class="btn-secondary">Novo / Limpar</button>
         </div>
 
-        <h3>Lista de Vendedores</h3>
+        <div class="card">
+            <h3>Pesquisar Vendedor</h3>
+            <input type="text" id="pesquisaNif" placeholder="Digite o NIF para procurar">
+            <button id="btnPesquisar">Procurar</button>
+        </div>
+
+        <h3>Lista de Vendedores Ativos</h3>
         <table>
             <thead>
                 <tr>
