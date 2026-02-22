@@ -2,35 +2,36 @@ import { auth, db } from "./firebase-config.js";
 import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-window.fazerLogin = async () => {
+const btnEntrar = document.getElementById("btnEntrar");
+const mensagem = document.getElementById("mensagem");
+
+btnEntrar.addEventListener("click", async () => {
     const email = document.getElementById("email").value;
     const senha = document.getElementById("senha").value;
-    const mensagem = document.getElementById("mensagem");
+
+    mensagem.innerText = "A verificar...";
 
     try {
         const userCredential = await signInWithEmailAndPassword(auth, email, senha);
         const user = userCredential.user;
 
-        // Procura o perfil do utilizador no Firestore para ver o cargo (role)
-        const docRef = doc(db, "users", user.uid);
-        const docSnap = await getDoc(docRef);
+        // Procura o role no Firestore
+        const docSnap = await getDoc(doc(db, "users", user.uid));
 
         if (docSnap.exists()) {
-            const userData = docSnap.data();
-            mensagem.innerHTML = "Sucesso! A redirecionar...";
+            const role = docSnap.data().role;
+            mensagem.innerText = "Sucesso! A redirecionar...";
             
-            // Redirecionamento baseado no cargo
-            if (userData.role === "admin") {
+            if (role === "admin") {
                 window.location.href = "admin.html";
-            } else if (userData.role === "vendas") {
+            } else if (role === "vendedor") {
                 window.location.href = "colaborador.html";
-            } else {
-                window.location.href = "compras.html";
             }
         } else {
-            mensagem.innerHTML = "Erro: Perfil não encontrado no banco de dados.";
+            mensagem.innerText = "Erro: Utilizador sem permissões no Firestore.";
         }
     } catch (error) {
-        mensagem.innerHTML = "Erro ao entrar: " + error.message;
+        mensagem.innerText = "Erro: " + error.message;
+        console.error(error);
     }
-};
+});
