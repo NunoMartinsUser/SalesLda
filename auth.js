@@ -1,34 +1,36 @@
 import { auth, db } from "./firebase-config.js";
 import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-import { doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-const loginBtn = document.getElementById("loginBtn");
-const msg = document.getElementById("message");
-
-loginBtn.addEventListener("click", async () => {
+window.fazerLogin = async () => {
     const email = document.getElementById("email").value;
-    const pass = document.getElementById("password").value;
+    const senha = document.getElementById("senha").value;
+    const mensagem = document.getElementById("mensagem");
 
     try {
-        const userCredential = await signInWithEmailAndPassword(auth, email, pass);
+        const userCredential = await signInWithEmailAndPassword(auth, email, senha);
         const user = userCredential.user;
 
-        // Verifica/Cria perfil no Firestore
-        const userRef = doc(db, "users", user.uid);
-        const userSnap = await getDoc(userRef);
+        // Procura o perfil do utilizador no Firestore para ver o cargo (role)
+        const docRef = doc(db, "users", user.uid);
+        const docSnap = await getDoc(docRef);
 
-        if (!userSnap.exists()) {
-            await setDoc(userRef, {
-                email: user.email,
-                role: "vendedor", // Perfil padrão inicial
-                nome: "Utilizador Novo"
-            });
+        if (docSnap.exists()) {
+            const userData = docSnap.data();
+            mensagem.innerHTML = "Sucesso! A redirecionar...";
+            
+            // Redirecionamento baseado no cargo
+            if (userData.role === "admin") {
+                window.location.href = "admin.html";
+            } else if (userData.role === "vendas") {
+                window.location.href = "colaborador.html";
+            } else {
+                window.location.href = "compras.html";
+            }
+        } else {
+            mensagem.innerHTML = "Erro: Perfil não encontrado no banco de dados.";
         }
-        
-        msg.innerText = "Sucesso! A redirecionar...";
-        // Aqui adicionaremos a lógica de redirecionamento por role no próximo passo
-        
     } catch (error) {
-        msg.innerText = "Erro: " + error.message;
+        mensagem.innerHTML = "Erro ao entrar: " + error.message;
     }
-});
+};
