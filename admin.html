@@ -7,14 +7,12 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-    <div class="nav-bar" style="display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: #2c3e50; color: white;">
-        <span style="font-weight: bold;">SalesLda Admin</span>
-        <button id="btnLogout" style="background: #e74c3c; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer;">Sair</button>
+    <div class="nav-bar">
+        <span>SalesLda Admin</span>
+        <button id="btnLogout" class="btn-clear">Sair</button>
     </div>
 
     <div class="container">
-        
         <div class="card">
             <h3>Ficha do Vendedor</h3>
             <div class="grid-form">
@@ -22,36 +20,29 @@
                 <input type="text" id="vendedorNome" placeholder="Nome Completo">
                 <input type="email" id="vendedorEmail" placeholder="E-mail">
                 <div style="display: flex; gap: 10px;">
-                    <button id="btnSalvar" class="btn-primary" style="flex: 2;">Salvar</button>
-                    <button id="btnLimpar" class="btn-clear" style="flex: 1;">Limpar</button>
+                    <button id="btnSalvar" class="btn-primary" style="flex: 1;">Salvar</button>
+                    <button id="btnLimpar" class="btn-clear">Limpar</button>
                 </div>
             </div>
         </div>
 
         <div class="card">
-            <h3>Pesquisa Rápida</h3>
-            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                <input type="text" id="pesquisaNif" placeholder="NIF para procurar" style="flex: 2; min-width: 150px;">
-                <button id="btnPesquisar" class="btn-secondary" style="flex: 1;">Procurar</button>
+            <h3>Pesquisar Vendedor</h3>
+            <div style="display: flex; gap: 10px;">
+                <input type="text" id="pesquisaNif" placeholder="Digite o NIF">
+                <button id="btnPesquisar" class="btn-secondary">Procurar</button>
             </div>
         </div>
 
-        <h3>Vendedores Registados</h3>
         <div class="table-container">
             <table>
                 <thead>
-                    <tr>
-                        <th>NIF</th>
-                        <th>Nome</th>
-                        <th>Estado</th>
-                        <th>Ações</th>
-                    </tr>
+                    <tr><th>NIF</th><th>Nome</th><th>Estado</th><th>Ações</th></tr>
                 </thead>
                 <tbody id="tabelaCorpo"></tbody>
             </table>
         </div>
     </div>
-
     <script type="module" src="admin.js"></script>
 </body>
 </html>
