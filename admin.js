@@ -11,21 +11,28 @@ const tabelaCorpo = document.getElementById("tabelaCorpo");
 // --- 1. SALVAR (CRIAR OU ATUALIZAR) ---
 async function salvarVendedor() {
     const nif = nifInput.value.trim();
-    if (!nif) return alert("O NIF é obrigatório!");
+    const nome = nomeInput.value.trim();
+    const email = emailInput.value.trim();
+
+    if (!nif || !nome || !email) {
+        return alert("Por favor, preencha todos os campos (NIF, Nome e Email)!");
+    }
 
     try {
         // Usar o NIF como ID do documento impede duplicados
         await setDoc(doc(db, "vendedores", nif), {
-            nome: nomeInput.value,
-            email: emailEmail.value,
+            nome: nome,
+            email: email,
             status: "ativo",
-            dataAtualizacao: new Date()
+            dataCriacao: new Date()
         }, { merge: true });
         
-        alert("Vendedor guardado/atualizado!");
+        alert("Vendedor guardado com sucesso!");
         limparForm();
         carregarVendedores();
-    } catch (e) { alert("Erro ao salvar: " + e.message); }
+    } catch (e) { 
+        alert("Erro ao salvar: " + e.message); 
+    }
 }
 
 // --- 2. PESQUISAR POR NIF ---
@@ -33,44 +40,51 @@ async function pesquisarVendedor() {
     const nif = document.getElementById("pesquisaNif").value.trim();
     if (!nif) return alert("Introduza um NIF para pesquisar.");
 
-    const docRef = doc(db, "vendedores", nif);
-    const docSnap = await getDoc(docRef);
+    try {
+        const docRef = doc(db, "vendedores", nif);
+        const docSnap = await getDoc(docRef);
 
-    if (docSnap.exists()) {
-        const v = docSnap.data();
-        nifInput.value = docSnap.id;
-        nifInput.disabled = true; // Impede alterar o NIF na edição
-        nomeInput.value = v.nome;
-        emailInput.value = v.email;
-    } else {
-        alert("Vendedor não encontrado!");
+        if (docSnap.exists()) {
+            const v = docSnap.data();
+            nifInput.value = docSnap.id;
+            nifInput.disabled = true; // Protege o NIF na edição
+            nomeInput.value = v.nome;
+            emailInput.value = v.email;
+            alert("Vendedor encontrado!");
+        } else {
+            alert("Vendedor não encontrado na base de dados.");
+        }
+    } catch (e) {
+        alert("Erro na pesquisa: " + e.message);
     }
 }
 
 // --- 3. LISTAR VENDEDORES NA TABELA ---
 async function carregarVendedores() {
-    tabelaCorpo.innerHTML = "";
+    tabelaCorpo.innerHTML = "<tr><td colspan='4'>A carregar...</td></tr>";
     try {
         const snap = await getDocs(collection(db, "vendedores"));
+        tabelaCorpo.innerHTML = "";
         snap.forEach((docV) => {
             const v = docV.data();
             const linha = document.createElement("tr");
             linha.innerHTML = `
-                <td style="padding:12px; border-bottom:1px solid #eee;">${docV.id}</td>
-                <td style="padding:12px; border-bottom:1px solid #eee;">${v.nome}</td>
-                <td style="padding:12px; border-bottom:1px solid #eee;">
-                    <span style="color: ${v.status === 'ativo' ? 'green' : 'red'}; font-weight:bold;">${v.status}</span>
-                </td>
-                <td style="padding:12px; border-bottom:1px solid #eee;">
-                    <button onclick="mudarEstado('${docV.id}', '${v.status}')" style="cursor:pointer;">Alternar Estado</button>
+                <td>${docV.id}</td>
+                <td>${v.nome}</td>
+                <td><span style="color: ${v.status === 'ativo' ? '#27ae60' : '#e74c3c'}; font-weight:bold;">${v.status}</span></td>
+                <td>
+                    <button onclick="mudarEstado('${docV.id}', '${v.status}')" style="padding: 5px 10px; cursor:pointer;">Alternar</button>
                 </td>
             `;
             tabelaCorpo.appendChild(linha);
         });
-    } catch (e) { console.error("Erro ao carregar lista:", e); }
+    } catch (e) { 
+        console.error("Erro ao listar:", e); 
+        tabelaCorpo.innerHTML = "<tr><td colspan='4'>Erro ao carregar dados.</td></tr>";
+    }
 }
 
-// --- 4. ALTERAR STATUS (ATIVAR/DESATIVAR) ---
+// --- 4. ALTERAR STATUS ---
 window.mudarEstado = async (nif, statusAtual) => {
     const novoStatus = statusAtual === "ativo" ? "inativo" : "ativo";
     try {
@@ -94,7 +108,7 @@ function limparForm() {
     document.getElementById("pesquisaNif").value = "";
 }
 
-// Listeners e Inicialização
+// Inicialização
 document.getElementById("btnSalvar").addEventListener("click", salvarVendedor);
 document.getElementById("btnPesquisar").addEventListener("click", pesquisarVendedor);
 document.getElementById("btnLimpar").addEventListener("click", limparForm);
